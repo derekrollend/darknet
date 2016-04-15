@@ -10,19 +10,20 @@
 #endif
 
 /* Change class number here */
-#define CLASSNUM 2
+#define CLASSNUM 11
 
 /* Change class names here */
-char *voc_names[] = {"stopsign", "yeildsign"};
+//char *voc_names[] = {"stopsign", "yieldsign"};
+char *voc_names[] = {"apple", "bowl", "cupormug", "iPod", "lemon", "lipstick", "orange", "remotecontrol", "saltorpeppershaker", "waterbottle", "winebottle"};
 image voc_labels[CLASSNUM];
 
 void train_yolo(char *cfgfile, char *weightfile)
 {
     /* Change training folders here */
-    char *train_images = "BBoxLabelTool/train.txt";
+    char *train_images = "/home/rolledm1/Desktop/darknet-train-11/training_list.txt";
 
     /* Change output weight folders here */
-    char *backup_directory = "/u03/Guanghan/dev/darknet-master/backup/";
+    char *backup_directory = "/home/rolledm1/Desktop/darknet-train-11/backup/";
 
     srand(time(0));
     data_seed = time(0);
@@ -355,7 +356,7 @@ void test_yolo(char *cfgfile, char *weightfile, char *filename, float thresh)
         if (nms) do_nms_sort(boxes, probs, l.side*l.side*l.n, l.classes, nms);
         draw_detections(im, l.side*l.side*l.n, thresh, boxes, probs, voc_names, voc_labels, CLASSNUM);
         show_image(im, "predictions");
-
+	save_image(im, "predictions");
         show_image(sized, "resized");
         free_image(im);
         free_image(sized);
