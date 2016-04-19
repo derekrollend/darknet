@@ -48,14 +48,14 @@ void *fetch_in_thread(void *ptr)
     cap >> frame_m;
     IplImage frame = frame_m;
 
-if(step == 0)
-{
-    w = frame.width;
-    h = frame.height;
-    c = frame.nChannels;
-    depth= frame.depth; 
-    step = frame.widthStep;
-}
+    if(step == 0)
+    {
+        w = frame.width;
+        h = frame.height;
+        c = frame.nChannels;
+        depth= frame.depth; 
+        step = frame.widthStep;
+    }
 
     in = ipl_to_image(&frame);
     rgbgr_image(in);
@@ -78,20 +78,21 @@ void *detect_in_thread(void *ptr)
     printf("\nFPS:%.0f\n",fps);
     printf("Objects:\n\n");
     draw_detections(det, l.side*l.side*l.n, demo_thresh, boxes, probs, voc_names, voc_labels, CLS_NUM);
+    printf("Side: %d, n: %d\n", l.side, l.n);
 
     if(MODE == 1)
     {
         IplImage* outputIpl= image_to_Ipl(det, w, h, depth, c, step);
         cv::Mat outputMat = cv::cvarrToMat(outputIpl, true);
         /*
-        cvNamedWindow("image", CV_WINDOW_AUTOSIZE);
-        cvShowImage("image", outputIpl); 
-        cvWaitKey(1);  
+          cvNamedWindow("image", CV_WINDOW_AUTOSIZE);
+          cvShowImage("image", outputIpl); 
+          cvWaitKey(1);  
         */
         cvReleaseImage(&outputIpl);
         cap_out << outputMat;
         outputMat.release();
-     }
+    }
 
     return 0;
 }
@@ -123,8 +124,10 @@ extern "C" void demo_yolo(char *cfgfile, char *weightfile, float thresh, int cam
         cap = videoCap;
         if(!cap.isOpened()) error("Couldn't read video file.\n");
 
-        cv::Size S = cv::Size((int)videoCap.get(CV_CAP_PROP_FRAME_WIDTH), (int)videoCap.get(CV_CAP_PROP_FRAME_HEIGHT));
-        cv::VideoWriter outputVideo("out.avi", CV_FOURCC('D','I','V','X'), videoCap.get(CV_CAP_PROP_FPS), S, true);
+        cv::Size S = cv::Size((int)videoCap.get(CV_CAP_PROP_FRAME_WIDTH), 
+                              (int)videoCap.get(CV_CAP_PROP_FRAME_HEIGHT));
+        cv::VideoWriter outputVideo("out.avi", CV_FOURCC('D','I','V','X'), 
+                                    videoCap.get(CV_CAP_PROP_FPS), S, true);
         if(!outputVideo.isOpened()) error("Couldn't write video file.\n");
         cap_out = outputVideo;
     }
