@@ -108,26 +108,26 @@ extern "C" void demo_yolo(char *cfgfile, char *weightfile, float thresh, int cam
 
     srand(2222222);
 
-if(cam_index != -1)
-{
-    MODE = 0; 
-    cv::VideoCapture cam(cam_index);
-    cap = cam;
-    if(!cap.isOpened()) error("Couldn't connect to webcam.\n");
-}
-else 
-{
-    MODE = 1;
-    printf("Video File name is: %s\n", videofile);
-    cv::VideoCapture videoCap(videofile);
-    cap = videoCap;
-    if(!cap.isOpened()) error("Couldn't read video file.\n");
+    if(cam_index != -1)
+    {
+        MODE = 0; 
+        cv::VideoCapture cam(cam_index);
+        cap = cam;
+        if(!cap.isOpened()) error("Couldn't connect to webcam.\n");
+    }
+    else 
+    {
+        MODE = 1;
+        printf("Video File name is: %s\n", videofile);
+        cv::VideoCapture videoCap(videofile);
+        cap = videoCap;
+        if(!cap.isOpened()) error("Couldn't read video file.\n");
 
-    cv::Size S = cv::Size((int)videoCap.get(CV_CAP_PROP_FRAME_WIDTH), (int)videoCap.get(CV_CAP_PROP_FRAME_HEIGHT));
-    cv::VideoWriter outputVideo("out.avi", CV_FOURCC('D','I','V','X'), videoCap.get(CV_CAP_PROP_FPS), S, true);
-    if(!outputVideo.isOpened()) error("Couldn't write video file.\n");
-    cap_out = outputVideo;
-}
+        cv::Size S = cv::Size((int)videoCap.get(CV_CAP_PROP_FRAME_WIDTH), (int)videoCap.get(CV_CAP_PROP_FRAME_HEIGHT));
+        cv::VideoWriter outputVideo("out.avi", CV_FOURCC('D','I','V','X'), videoCap.get(CV_CAP_PROP_FPS), S, true);
+        if(!outputVideo.isOpened()) error("Couldn't write video file.\n");
+        cap_out = outputVideo;
+    }
  
     detection_layer l = net.layers[net.n-1];
     int j;
