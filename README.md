@@ -1,4 +1,5 @@
-![Darknet Logo](http://pjreddie.com/media/files/darknet-black-small.png)
+![Darknet Logo](http://pjreddie.com/media/files/darknet-black-small.png) 
+![ImageNet Logo](http://image-net.org/index_files/logo.jpg)
 
 #Darknet#
 Darknet is an open source neural network framework written in C and CUDA. It is fast, easy to install, and supports CPU and GPU computation.
@@ -7,7 +8,18 @@ For more information see the [Darknet project website](http://pjreddie.com/darkn
 
 For questions or issues please use the [Google Group](https://groups.google.com/forum/#!forum/darknet).
 
-#About This Fork#
+#About This Fork of a Fork#
+
+This fork is a fork of [Guanghan's fork](https://github.com/Guanghan/darknet) of [darknet by pjreddie](https://github.com/pjreddie/darknet). I've added some utility Matlab scripts to extract a subset of the [ILSVRC2014 object detection dataset](http://www.image-net.org/challenges/LSVRC/2014/) and put the images+labels+training list all in the correct directory structure for YOLO training (see [scripts/get_class_subset.m](https://github.com/derekrollend/darknet/blob/master/scripts/get_class_subset.m)).  
+
+I've also added a crude training output [Python parser script](https://github.com/derekrollend/darknet/blob/master/scripts/parse_train_log.py) for examining network loss and average detection IOU during training.  Pipe stdout to a text file during training, and then give the location of this text file to the script as a command line parameter, e.g.:
+
+`python parse_train_log.py <my_giant_log_file.txt>`
+
+The script will display 2 matplotlib plots of the network loss and detection IOU vs. training iteration or time.
+
+Almost everything below is borrowed from Guanghan's readme
+---
 
 ![Yolo logo](http://guanghan.info/blog/en/wp-content/uploads/2015/12/images-40.jpg)
 
@@ -28,10 +40,6 @@ For questions or issues please use the [Google Group](https://groups.google.com/
    Or you can read this article: [Start Training YOLO with Our Own Data](http://guanghan.info/blog/en/my-works/train-yolo/).
 
 #DEMOS of YOLO trained with our own data#
-Yield Sign: [https://youtu.be/5DJVLV3P47E](https://youtu.be/5DJVLV3P47E)
-
-Stop Sign: [https://youtu.be/0CQMb3NGlMk](https://youtu.be/0CQMb3NGlMk)
-
 The cfg that I used is here: [darknet/cfg/yolo_2class_box11.cfg](https://github.com/Guanghan/darknet/blob/master/cfg/yolo_2class_box11.cfg)
 
 The weights that I trained can be downloaded here: (UPDATED 1/13/2016)
@@ -42,8 +50,7 @@ The pre-compiled software with source code package for the demo:
 
 You can use this as an example. In order to run the demo on a video file, just type: 
 
-./darknet yolo demo_vid cfg/yolo_2class_box11.cfg model/yolo_2class_box11_3000.weights /video/test.mp4
-
+`./darknet yolo demo_vid cfg/yolo_2class_box11.cfg model/yolo_2class_box11_3000.weights /video/test.mp4`
 
 If you would like to repeat the training process or get a feel of YOLO, you can download the data I collected and the annotations I labeled. 
 
@@ -64,8 +71,10 @@ The demo is trained with the above data and annotations.
 2. Create Annotation in Darknet Format 
    
    (1). If we choose to use VOC data to train, use [scripts/voc_label.py](https://github.com/Guanghan/darknet/blob/master/scripts/voc_label.py) to convert existing VOC annotations to darknet format.
+
+   (2). If we choose to use ILSVRC2014 object detection data to train, use [scripts/get_class_subset.m](https://github.com/derekrollend/darknet/blob/master/scripts/get_class_subset.m] to get a desired class subset of the available 200 classes with ground-truth bounding boxes.
    
-   (2). If we choose to use our own collected data, use [scripts/convert.py](https://github.com/Guanghan/darknet/blob/master/scripts/convert.py) to convert the annotations.
+   (3). If we choose to use our own collected data, use [scripts/convert.py](https://github.com/Guanghan/darknet/blob/master/scripts/convert.py) to convert the annotations.
 
    At this step, we should have darknet annotations(.txt) and a training list(.txt).
    
@@ -100,26 +109,42 @@ The demo is trained with the above data and annotations.
    
 3. Modify Some Code
 
-   (1) In [src/yolo.c](https://github.com/Guanghan/darknet/blob/master/src/yolo.c), change class numbers and class names. (And also the paths to the training data and the annotations, i.e., the list we obtained from step 2. )
+   (1) In [src/yolo.c](https://github.com/derekrollend/darknet/blob/master/src/yolo.c), change class numbers and class names. (And also the paths to the training data and the annotations, i.e., the list we obtained from step 2. )
    
-       If we want to train new classes, in order to display correct png Label files, we also need to moidify and run [data/labels/make_labels] (https://github.com/Guanghan/darknet/blob/master/data/labels/make_labels.py)
+       If we want to train new classes, in order to display correct png Label files, we also need to modify and run [data/labels/make_labels] (https://github.com/derekrollend/darknet/blob/master/data/labels/make_labels.py)
    
-   (2) In [src/yolo_kernels.cu](https://github.com/Guanghan/darknet/blob/master/src/yolo_kernels.cu), change class numbers.
+   (2) In [src/yolo_kernels.cu](https://github.com/derekrollend/darknet/blob/master/src/yolo_kernels.cu), change class numbers.
    
    (3) Now we are able to train with new classes, but there is one more thing to deal with. In YOLO, the number of parameters of the second last layer is not arbitrary, instead it is defined by some other parameters including the number of classes, the side(number of splits of the whole image). Please read [the paper](http://arxiv.org/abs/1506.02640)  
        
        (5 x 2 + number_of_classes) x 7 x 7, as an example, assuming no other parameters are modified.  
        
-       Therefore, in [cfg/yolo.cfg](https://github.com/Guanghan/darknet/blob/master/cfg/yolo.cfg), change the "output" in line 218, and "classes" in line 222.
+       Therefore, in [cfg/yolo.cfg](https://github.com/derekrollend/darknet/blob/master/cfg/yolo.cfg), change the "output" in line 218, and "classes" in line 222.
        
-   (4) Now we are good to go. If we need to change the number of layers and experiment with various parameters, just mess with the cfg file. For the original yolo configuration, we have the [pre-trained weights](http://pjreddie.com/media/files/extraction.conv.weights) to start from. For arbitrary configuration, I'm afraid we have to generate pre-trained model ourselves.
+   (4) Now we are good to go. If we need to change the number of layers and experiment with various parameters, just mess with the cfg file. For the original yolo configuration, we have the [pre-trained weights](http://pjreddie.com/media/files/extraction.conv.weights) to start from. **For training with either the yolo-small.cfg or yolo-tiny.cfg, we can extract the pre-trained convolutional weights from the corresponding model from pjreddie via:**
+
+   `./darknet partial cfg/yolo-small.cfg yolo-small.weights yolo-small.conv.weights 29`
+
+   or 
+
+   `./darknet partial cfg/yolo-tiny.cfg yolo-tiny.weights yolo-tiny.conv.weights 16`
+
+   These convolutional layer weights can then be used to during training on your own data.
    
 4. Start Training
 
    Try something like:
 
-   ./darknet yolo train cfg/yolo.cfg extraction.conv.weights
+   `./darknet yolo train cfg/yolo.cfg extraction.conv.weights`
 
+   or
+
+   `./darknet yolo train cfg/yolo-small.cfg yolo-small.conv.weights`
+
+   or
+
+   `./darknet yolo train cfg/yolo-tiny.cfg yolo-tiny.conv.weights`
+   
 #Contact#
 If you find any problems regarding the procedure, contact me at [gnxr9@mail.missouri.edu](gnxr9@mail.missouri.edu).
 
