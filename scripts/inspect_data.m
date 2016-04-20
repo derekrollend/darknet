@@ -1,10 +1,13 @@
 close all; clear all;
 
-TRAIN_DIR = '/home/rolledm1/Desktop/darknet-train-11';
+%TRAIN_DIR = '/home/rolledm1/Desktop/darknet-train-11';
+%TRAIN_DIR = '/home/rolledm1/Desktop/darknet-train-2';
+TRAIN_DIR = '/media/rolledm1/rolledm1-ext1/darknet-train-11-new';
 
 % define classes (out of the 200 ILSVRC detection classes) of interest
 classes = {'apple', 'bowl', 'cup or mug', 'iPod', 'lemon', 'lipstick', 'orange', ...
            'remote control', 'saltor pepper shaker', 'water bottle', 'wine bottle'};
+%classes = {'stopsign', 'yieldsign'};
        
 N_SHOW    = 15; % how many images to check out
 
@@ -23,15 +26,20 @@ for ii=1:N_SHOW
     fclose(label_fid);
     labels    = cell2mat(labels);
     
-    figure; imshow(img); hold on;
+    fig_h = figure; imshow(img); hold on;
+    ax = fig_h.CurrentAxes;
+    
+    img_w = size(img, 2);
+    img_h = size(img, 1);
     
     for jj=1:size(labels, 1)
-        rectangle('Position', ...
-                  [labels(jj, 2)*size(img, 2)+1 ...
-                   labels(jj, 3)*size(img, 1)+1 ...
-                   labels(jj, 4)*size(img, 2)   ...
-                   labels(jj, 5)*size(img, 1)], 'EdgeColor', 'r', 'LineWidth', 2);
-        text(labels(jj, 2)*size(img, 2)+5, ...
+        rectangle(ax, 'Position', ...
+                  [labels(jj, 2)*img_w - labels(jj, 4)*img_w/2 + 1 ...
+                   labels(jj, 3)*img_h - labels(jj, 5)*img_h/2 + 1 ...
+                   labels(jj, 4)*img_w   ...
+                   labels(jj, 5)*img_h], 'EdgeColor', 'r', 'LineWidth', 2);
+         
+        text(ax, labels(jj, 2)*size(img, 2)+5, ...
              labels(jj, 3)*size(img, 1)+10, ...
              class, 'Color', 'red', 'FontSize', 14);
     end

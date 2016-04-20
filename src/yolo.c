@@ -31,6 +31,10 @@ void train_yolo(char *cfgfile, char *weightfile)
     printf("%s\n", base);
     float avg_loss = -1;
     network net = parse_network_cfg(cfgfile);
+
+    printf("Network - n: %d\tbatch: %d\tsubdivisions: %d\n",
+	   net.n, net.batch, net.subdivisions);
+    
     if(weightfile){
         load_weights(&net, weightfile);
     }
@@ -320,8 +324,11 @@ void validate_yolo_recall(char *cfgfile, char *weightfile)
 
 void test_yolo(char *cfgfile, char *weightfile, char *filename, float thresh)
 {
-
     network net = parse_network_cfg(cfgfile);
+
+    printf("Network - n: %d\tbatch: %d\tsubdivisions: %d\n",
+	   net.n, net.batch, net.subdivisions);
+
     if(weightfile){
         load_weights(&net, weightfile);
     }
